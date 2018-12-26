@@ -1,11 +1,8 @@
 ---
-title: "422_HW4"
-author: "milap"
-date: "11/29/2017"
-output: html_document
----
+## title: "422_HW4"
+## author: "milap"
+## date: "11/29/2017"
 
-```{r,eval = TRUE} 
 library(cluster)
 library(factoextra)
 library(fpc)
@@ -14,10 +11,7 @@ library(magrittr)
 rm(list=ls())
 setwd("/Users/Milap/Desktop/CS422_DataMining/")
 data_countries <- read.csv("lang1.csv", sep=",", header = T, row.names = 'X')
-```
 
-##### Answer 2.1 (a) :
-```{r,eval = TRUE}
 hc.complete <- eclust(data_countries, "hclust", hc_method="complete")
 fviz_dend(hc.complete)
 
@@ -26,39 +20,19 @@ fviz_dend(hc.single)
 
 hc.average <- eclust(data_countries,"hclust",hc_method = "average")
 fviz_dend(hc.average)
-```
 
-##### Answer 2.1 (b)
-##### Answer: 5 Singletons for Complete Linkage  {WestGermany,Austria}, {Luxemburg,Switzerland},{Great Britain, Ireland}, {France, Belgium}, {Denamrk,Norway}
-##### Answer : 5 Singletons for Single Linkage {Denmark, Norway}, {Great Britain,Ireland},{West Germany,Austria},{Luxemburg,Switzerland}, {France, Belgium}
-##### Answer: 6 Singletons for Average Linkage {Spain,Portugal}, {WestGermany, Austria}, {Luxemburg,Swotzerlandi} , {France, Belgium}, {Norway,Denmark}, {Great Britain,Ireland}
-
-##### Answer 2.1 (c) : Single and Average Linkages reflect accurate how Italy should be clustered, since in single linkage Italy is clustered near Netherlands, and they both have almost identical languages spoken (very similar)
-##### Average Linkage clusters Italy near Germany and Austria and have almost identical languages spoken.
-
-##### Answer 2.1(d)
-##### Purity as the linkage strategy that produces the most two-singleton cluster is "Average" method.
-###### Linkage with method="Average" is pure.
-
-##### Answer 2.1(e) :
-##### 7 clusters are created at height 125
-```{r,eval = TRUE}
 average_cut <- cutree(hc.average,h=125)
 table(average_cut)
-```
 
-##### Answer 2.1 (f):
-```{r,eval = TRUE}
+
 hc.average_1 <- eclust(data_countries,"hclust",k = 7,hc_method = "average")
 fviz_dend(hc.average_1)
 hc.single_1 <- eclust(data_countries,"hclust",k = 7,hc_method = "single")
 fviz_dend(hc.single_1)
 hc.complete_1 <- eclust(data_countries,"hclust",k = 7,hc_method = "complete")
 fviz_dend(hc.complete_1)
-```
 
-##### Answer 2.1(g) :
-```{r,eval = TRUE}
+
 library(fpc)
 
 stats_single <- cluster.stats(dist(data_countries), hc.single_1$cluster, silhouette=TRUE)
@@ -72,22 +46,15 @@ stats_complete$avg.silwidth
 stats_average<- cluster.stats(dist(data_countries), hc.average_1$cluster,silhouette=TRUE)
 stats_average$dunn
 stats_average$avg.silwidth
-```
 
-##### Answer 2.1 (h) : Dunn index for hc.average_1 is maximum. Therfore hc.average_1 is the best cluster
-##### Answer 2.1 (i) : Silhouette width for hc.complete_1 is maximum. Therefore, hc.complete_1 is the best cluster.
 
-##### Answer 2.2 (a) : Length is 22033 (* The length of tokens on WindowsOS is "22074" and on MacOS and Ubuntu it is 22033, I think this is due to txt files encryption difference between OS)
-```{r,eval = TRUE}
 input_files <- list.files("/Users/Milap/Downloads/corpus", full.names = T)
 minhash <- minhash_generator(n=160, seed=100)
 corpus <- TextReuseCorpus(input_files, tokenizer = tokenize_ngrams, n = 5,
                           minhash_func = minhash, keep_tokens = TRUE)
 length(unlist(tokens(corpus)))
-```
 
-##### Answer 2.2 (a) : Dimensions of characteristics matrix:- Number of unique shingles(rows) x ##### Number of files(columns) = 17614*100
-```{r,eval = TRUE}
+
 library(magrittr)
 totaltokens <- tokens(corpus)
 corpusMat <- list.files("/Users/Milap/Downloads/corpus", full.names=F)
@@ -96,46 +63,26 @@ Matr <- lapply(totaltokens, function(set, dict) {   as.integer(dict %in% set)}, 
 tempSetName <-setNames( Matr, paste( corpusMat, 1:length(corpusMat)) )
 rownames(Matr) <- doc_dict
 dim(Matr)
-```
-##### Answer 2.2(c) :
-```{r,eval = TRUE}
+
 tokens(corpus[["orig_taske"]])[1:5]
-```
-
-##### Answer 2.2(d) :For 240 rows of signature matrix, The dimensions of signature matrix will become 240*100.
-##### The generated Characteristic matrix is of dimension 17575*100, thus reduction of size is 98.64%.
 
 
-##### Answer 2.2(e) : Since the number of hashes hashes must be evenly divisible by the number of bands, possible values of bands = (20,30,60,80)
-```{r,eval = TRUE}
 lsh_probability(h = 240, b =  20, s = 0.3)
 lsh_probability(h = 240, b =  30, s = 0.3)
 lsh_probability(h = 240, b =  60, s = 0.3)
 lsh_probability(h = 240, b =  80, s = 0.3)
-```
-
-##### 80 bands will be needed to get the desired probabilty.
 
 
-##### Answer 2.2(f)
-```{r,eval =TRUE}
 buckets <- lsh(corpus, bands = 80)
 candidates <- lsh_candidates(buckets)
 candidatepair<-nrow(candidates)
 candidatepair
-``` 
+ 
 
-##### Answer 2.2(g)
-```{r,eval = TRUE}
 lshResult <- lsh_compare(candidates, corpus, jaccard_similarity)
 lshResult[order(lshResult$score,decreasing = TRUE),][1:5,]
-```
 
-##### Answer 2.2 (h) : If LSH was not used number of pairs of documents created would be 100 choose 2 = 4950.
-##### The ratio of this number to number of candidate pairs found in above quesstion (73) :
-##### 4950 / 73 = 67.8. Thus not using LSH would result in 67.8 times more comparision.
 
-```{r,eval = TRUE}
 
 data_full <- read.csv("/Users/Milap/Desktop/CS422_DataMining/u.csv", sep="\t", header=T, comment.char = "#")
 data_item <- read.csv("/Users/Milap/Desktop/CS422_DataMining/u_item.csv", sep="|", header=T, comment.char = "#")
@@ -157,33 +104,20 @@ genre50 <- apply(movie.matrix50,2,mean)
 vector50 <- as.vector(genre50)
 
 cosine <- function(x, y) {sum(x*y)/(norm(x, type="2") * norm(y, type="2"))}
-```
 
 
-##### Answer 2.3 (a)(i) : 
-```{r,eval = TRUE}
 cosine(vector200,vector50)
-```
-```{r,eval = TRUE}
+
 movie127 <- data_item[127,]
 vector127 <- as.vector(movie127[,6:24])
-```
 
 
-##### Answer 2.3(a)(ii)
-```{r,eval = TRUE}
+
 cosine(vector127,vector200)
-```
 
 
-##### Answer 2.3(a)(iii)
-```{r,eval = TRUE}
 cosine(vector127,vector50)
-```
 
-##### Answer 2.3(a)(iv): movie 127 will be recommended to user 50 since the cosine similarity is higher compared to movie127 and user 200.
-##### Answer 2.3(b) : Collaborative Matrix.
-```{r,eval = TRUE}
 user1_rownum_1 <- which(data_full$user== 1 & data_full$iditem == 1)
 user1_rownum_2 <- which(data_full$user== 1 & data_full$iditem == 2)
 user1_rownum_3 <- which(data_full$user== 1 & data_full$iditem == 3)
@@ -367,10 +301,4 @@ e <- cosine(m[5,],m[5,])
 f <- cosine(m[5,],m[6,])
 m <- cbind(user1_ratings,user21_ratings,user44_ratings,user59_ratings,user72_ratings,user82_ratings,user102_ratings,user234_ratings,user268_ratings,user409_ratings,user486_ratings)
 m[m==0] <- NA
-```
 
-
-##### From the cosine values we select values by user 268 in rows 2 and 4, since they are most similar. The question mentions N = 3, but there are only 2 positive cosine values.
-##### (sum of cosine value * rating) / (sum of cosine values).
-##### ((0.289 *2) + (0.06 * 4)) / (0.289 + 0.06)
-##### Rating = 2.34, therefore user 268 will rate movie 5 as 2.34.
